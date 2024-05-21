@@ -1,4 +1,4 @@
-using EmailSender.EmailConfiguration;
+using EmailSender.MailConfiguration;
 
 namespace EmailSender
 {
@@ -20,7 +20,7 @@ namespace EmailSender
                 if (_logger.IsEnabled(LogLevel.Information))
                 {
                     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                    var message = new Message(new string[] { "email to sent" }, "Test email", "Привет.");
+                    var message = new Message(new string[] { "email to sent" }, "Test email", "Hello.");
                     _emailSender.SendEmail(message);
                     _logger.LogInformation("Email sent in: {time}", DateTimeOffset.Now);
                 }
