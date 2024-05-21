@@ -1,12 +1,16 @@
+using EmailSender.EmailConfiguration;
+
 namespace EmailSender
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
+        private readonly IEmailSender _emailSender;
 
-        public Worker(ILogger<Worker> logger)
+        public Worker(ILogger<Worker> logger, IEmailSender sender)
         {
             _logger = logger;
+            _emailSender = sender;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -16,8 +20,11 @@ namespace EmailSender
                 if (_logger.IsEnabled(LogLevel.Information))
                 {
                     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                    var message = new Message(new string[] { "email to sent" }, "Test email", "Привет.");
+                    _emailSender.SendEmail(message);
+                    _logger.LogInformation("Email sent in: {time}", DateTimeOffset.Now);
                 }
-                await Task.Delay(1000, stoppingToken);
+                await Task.Delay(5000, stoppingToken);
             }
         }
     }
