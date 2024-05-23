@@ -1,14 +1,12 @@
 using EmailSender;
 using EmailSender.MailConfiguration;
+using EmailSender.MailSender;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker>();
 
-var emailConfig = builder.Configuration
-    .GetSection("EmailConfiguration")
-    .Get<EmailConfiguration>();
-builder.Services.AddSingleton(emailConfig);
-builder.Services.AddSingleton<IEmailSender, EmailSender.MailConfiguration.EmailSender>();
+builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration")); 
+builder.Services.AddSingleton<IEmailSender, EmailSender.MailSender.EmailSender>();
 
 var host = builder.Build();
 
