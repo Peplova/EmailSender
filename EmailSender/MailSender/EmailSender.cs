@@ -10,11 +10,13 @@ public class EmailSender : IEmailSender
 {
     private readonly IOptionsMonitor<EmailConfiguration> _emailConfig;
     private readonly ILogger<Worker> _logger;
+    private readonly ISmtpClient _smtpClient;
 
 
-    public EmailSender(IOptionsMonitor<EmailConfiguration> config, ILogger<Worker> logger)
+    public EmailSender(IOptionsMonitor<EmailConfiguration> config, ILogger<Worker> logger, ISmtpClient smtpClient)
     {
         _emailConfig = config;
+        _smtpClient = smtpClient;
         _logger = logger;
     }
 
@@ -24,28 +26,16 @@ public class EmailSender : IEmailSender
         Send(emailMessage);
     }
 
-    private MimeMessage CreateEmailMessage(Message message)
-    {
-        var emailConfig = this._emailConfig.CurrentValue;
-        var emailMessage = new MimeMessage();
-        emailMessage.From.Add(new MailboxAddress("email", emailConfig.From));
-        emailMessage.To.AddRange(message.To);
-        emailMessage.Subject = message.Subject;
-        emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = message.Content };
-        return emailMessage;
-    }
-
     private void Send(MimeMessage mailMessage)
     {
-        using var client = new SmtpClient();
         try
         {
-            var emailConfig = this._emailConfig.CurrentValue;
+            var emailConfig = _emailConfig.CurrentValue;
 
-            client.Connect(emailConfig.SmtpServer, emailConfig.Port, true);
-            client.AuthenticationMechanisms.Remove("XOAUTH2");
-            client.Authenticate(emailConfig.UserName, emailConfig.Password);
-            client.Send(mailMessage);
+            _smtpClient.Connect(emailConfig.SmtpServer, emailConfig.Port, true);
+            _smtpClient.AuthenticationMechanisms.Remove("XOAUTH2");
+            _smtpClient.Authenticate(emailConfig.UserName, emailConfig.Password);
+            _smtpClient.Send(mailMessage);
         }
         catch (SmtpCommandException ex) when (ex.ErrorCode == SmtpErrorCode.RecipientNotAccepted)
         {
@@ -79,8 +69,18 @@ public class EmailSender : IEmailSender
         }
         finally
         {
-            client.Disconnect(true);
-            client.Dispose();
+            _smtpClient.Disconnect(true);
         }
+    }
+    
+    private MimeMessage CreateEmailMessage(Message message)
+    {
+        var emailConfig = _emailConfig.CurrentValue;
+        var emailMessage = new MimeMessage();
+        emailMessage.From.Add(new MailboxAddress("email", emailConfig.From));
+        emailMessage.To.AddRange(message.To);
+        emailMessage.Subject = message.Subject;
+        emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = message.Content };
+        return emailMessage;
     }
 }
