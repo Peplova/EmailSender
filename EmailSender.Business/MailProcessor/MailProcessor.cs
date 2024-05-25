@@ -1,41 +1,28 @@
-using EmailSender.MailConfiguration;
+using EmailSender.Business.MailConfiguration;
+using EmailSender.Business.MailSender;
 using MailKit.Net.Smtp;
-using MimeKit;
-using Microsoft.Extensions.Options;
-using SmtpClient = MailKit.Net.Smtp.SmtpClient;
+using Microsoft.Extensions.Logging;
 
-namespace EmailSender.MailSender;
+namespace EmailSender.Business.MailProcessor;
 
-public class EmailSender : IEmailSender
+public class MailProcessor : IMailProcessor
 {
-    private readonly IOptionsMonitor<EmailConfiguration> _emailConfig;
-    private readonly ILogger<Worker> _logger;
+    private readonly IEmailSender _emailSender;
     private readonly ISmtpClient _smtpClient;
-
-
-    public EmailSender(IOptionsMonitor<EmailConfiguration> config, ILogger<Worker> logger, ISmtpClient smtpClient)
+    private readonly ILogger<MailProcessor> _logger;
+    
+    public MailProcessor(IEmailSender sender, ILogger<MailProcessor> logger, ISmtpClient smtpClient)
     {
-        _emailConfig = config;
-        _smtpClient = smtpClient;
+        _emailSender = sender;
         _logger = logger;
+        _smtpClient = smtpClient;
     }
 
-    public void SendEmail(Message message)
-    {
-        var emailMessage = CreateEmailMessage(message);
-        Send(emailMessage);
-    }
-
-    private void Send(MimeMessage mailMessage)
+    public bool ProcessEndSendMail(Message message)
     {
         try
         {
-            var emailConfig = _emailConfig.CurrentValue;
-
-            _smtpClient.Connect(emailConfig.SmtpServer, emailConfig.Port, true);
-            _smtpClient.AuthenticationMechanisms.Remove("XOAUTH2");
-            _smtpClient.Authenticate(emailConfig.UserName, emailConfig.Password);
-            _smtpClient.Send(mailMessage);
+            return _emailSender.SendEmail(message);
         }
         catch (SmtpCommandException ex) when (ex.ErrorCode == SmtpErrorCode.RecipientNotAccepted)
         {
@@ -71,16 +58,5 @@ public class EmailSender : IEmailSender
         {
             _smtpClient.Disconnect(true);
         }
-    }
-    
-    private MimeMessage CreateEmailMessage(Message message)
-    {
-        var emailConfig = _emailConfig.CurrentValue;
-        var emailMessage = new MimeMessage();
-        emailMessage.From.Add(new MailboxAddress("email", emailConfig.From));
-        emailMessage.To.AddRange(message.To);
-        emailMessage.Subject = message.Subject;
-        emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = message.Content };
-        return emailMessage;
     }
 }

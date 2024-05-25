@@ -1,6 +1,6 @@
 using MimeKit;
 
-namespace EmailSender.MailConfiguration;
+namespace EmailSender.Business.MailConfiguration;
 
 public class Message
 {
