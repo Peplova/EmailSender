@@ -1,3 +1,4 @@
+
 using EmailSender.Business.MailConfiguration;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
