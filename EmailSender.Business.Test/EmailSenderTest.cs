@@ -23,7 +23,7 @@ public class EmailSenderTest
     public EmailSenderTest()
     {
         _configEmailMock = new Mock<IOptionsMonitor<EmailConfiguration>>();
-        _loggerMock = new Mock<ILogger<IEmailSender>>();
+        _loggerMock = new Mock<ILogger<EmailSender.Business.MailSender.IEmailSender>>();
         _smtpClientMock = new Mock<ISmtpClient>();
     }
 
@@ -31,14 +31,22 @@ public class EmailSenderTest
     public void SendEmail_SuccessSend_Recerved()
     {
         // Arrange
-        var sender = new EmailSender(_configEmailMock.Object, _loggerMock.Object, _smtpClientMock.Object);
+        var sender = new MailSender.EmailSender(_configEmailMock.Object, (ILogger<MailSender.EmailSender>)_loggerMock.Object, _smtpClientMock.Object);
         var message = new Message
         {
             To = new List<MailboxAddress> { new MailboxAddress("recipient", "recipient@mail.ru") },
             Subject = "Test Subject",
             Content = "Test Content"
         };
-        var emailConfig = new EmailConfiguration { }
+        
+        var emailConfig = new EmailConfiguration
+        {
+            SmtpServer = "smtp.example.com",
+            Port = 587,
+            UserName = "testuser",
+            Password = "testpassword",
+            From = "sender@example.com"
+        };
         _configEmailMock.Setup(x => x.CurrentValue).Returns(emailConfig);
 
         // Act
@@ -54,6 +62,7 @@ public class EmailSenderTest
             Times.Once);
         _smtpClientMock.Verify(x => x.Send(It.IsAny<MimeMessage>()), Times.Once);
     }
+}
 
 
 
