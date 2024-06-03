@@ -351,3 +351,5 @@ MigrationBackup/
 .idea/.idea.EmailSender/.idea/
 
 EmailSender/obj/
+
+EmailSender/appsettings.json
