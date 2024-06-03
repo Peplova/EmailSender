@@ -19,12 +19,12 @@ public class EmailSender : IEmailSender
         _logger = logger;
     }
 
-    public bool SendEmail(Message message)
+    public async Task<bool> SendEmailAsync(Message message)
     {
         _logger.LogInformation($"{DateTime.Now} Creating email at time in EmailSender class");
         var emailMessage = CreateEmailMessage(message);
         _logger.LogInformation($"{DateTime.Now} Call to Send method in EmailSender class");
-        var result = Send(emailMessage);
+        var result = await SendAsync(emailMessage);
         if (result)
         {
             _logger.LogInformation($"{DateTime.Now} Called the Send method successfully, email sent");
@@ -37,7 +37,7 @@ public class EmailSender : IEmailSender
         return result;
     }
 
-    private bool Send(MimeMessage mailMessage)
+    private async Task<bool> SendAsync(MimeMessage mailMessage)
     {
         var result = false;
 
@@ -45,16 +45,16 @@ public class EmailSender : IEmailSender
         var emailConfig = _emailConfig.CurrentValue;
 
         _logger.LogInformation($"{DateTime.Now} SMTP CLient connecting in Send method in EmailSender class");
-        _smtpClient.Connect(emailConfig.SmtpServer, emailConfig.Port, true);
+        await _smtpClient.ConnectAsync(emailConfig.SmtpServer, emailConfig.Port, true);
         _logger.LogInformation(
             $"{DateTime.Now} SMTP CLient remove the auth mechanisms in Send method in EmailSender class");
         _smtpClient.AuthenticationMechanisms.Remove("XOAUTH2");
         _logger.LogInformation(
             $"{DateTime.Now} SMTP CLient attempt to authentification in Send method in EmailSender class");
-        _smtpClient.Authenticate(emailConfig.UserName, emailConfig.Password);
+        await _smtpClient.AuthenticateAsync(emailConfig.UserName, emailConfig.Password);
         _logger.LogInformation(
             $"{DateTime.Now} SMTP CLient attempt to Send message in Send method in EmailSender class");
-        _smtpClient.Send(mailMessage);
+        await _smtpClient.SendAsync(mailMessage);
         result = true;
 
         return result;

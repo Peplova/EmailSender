@@ -5,5 +5,5 @@ namespace EmailSender.Business.MailProcessor;
 
 public interface IMailProcessor
 {
-    bool ProcessEndSendMail(Message message);
+    Task<bool> ProcessEndSendMail(Message message);
 }

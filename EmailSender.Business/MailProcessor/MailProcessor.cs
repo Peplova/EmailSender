@@ -18,11 +18,11 @@ public class MailProcessor : IMailProcessor
         _smtpClient = smtpClient;
     }
 
-    public bool ProcessEndSendMail(Message message)
+    public async Task<bool> ProcessEndSendMail(Message message)
     {
         try
         {
-            return _emailSender.SendEmail(message);
+            return await _emailSender.SendEmailAsync(message);
         }
         catch (SmtpCommandException ex) when (ex.ErrorCode == SmtpErrorCode.RecipientNotAccepted)
         {

@@ -23,7 +23,7 @@ namespace EmailSender
                     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
                     var message = new Message(new string[] { "xnesart@mail.ru" }, "Test email", "Hello.");
-                    var isSending = _mailProcessor.ProcessEndSendMail(message);
+                    var isSending = await _mailProcessor.ProcessEndSendMail(message);
 
                     if (isSending) _logger.LogInformation("Email sent in: {time}", DateTimeOffset.Now);
                     else _logger.LogError("Email sent error in: {time}", DateTimeOffset.Now);
