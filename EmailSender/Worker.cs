@@ -1,8 +1,3 @@
-using EmailSender.Business.MailConfiguration;
-using EmailSender.Business.MailProcessor;
-using MassTransit;
-using Messaging.Shared;
-
 namespace EmailSender
 {
     public class Worker : BackgroundService

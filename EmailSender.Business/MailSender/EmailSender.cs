@@ -51,7 +51,7 @@ public class EmailSender : IEmailSender
         _smtpClient.AuthenticationMechanisms.Remove("XOAUTH2");
         _logger.LogInformation(
             $"{DateTime.Now} SMTP CLient attempt to authentification in Send method in EmailSender class");
-        await _smtpClient.AuthenticateAsync(emailConfig.UserName, emailConfig.Password);
+        await _smtpClient.AuthenticateAsync(emailConfig.Username, emailConfig.Password);
         _logger.LogInformation(
             $"{DateTime.Now} SMTP CLient attempt to Send message in Send method in EmailSender class");
         await _smtpClient.SendAsync(mailMessage);
@@ -64,7 +64,7 @@ public class EmailSender : IEmailSender
     {
         var emailConfig = _emailConfig.CurrentValue;
         var emailMessage = new MimeMessage();
-        emailMessage.From.Add(new MailboxAddress("email", emailConfig.From));
+        emailMessage.From.Add(new MailboxAddress("email", message.From));
         emailMessage.To.AddRange(message.To);
         emailMessage.Subject = message.Subject;
         emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = message.Content };

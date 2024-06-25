@@ -20,9 +20,9 @@ public class MailRequestConsumer : IConsumer<MailRequest>
     public async Task Consume(ConsumeContext<MailRequest> context)
     {
         var message = context.Message;
-        _logger.LogInformation($"Received message: To={string.Join(", ", message.To)}, Subject={message.Subject}");
-        
-        var mailMessage = new Message(message.To, message.Subject, message.Body);
+        _logger.LogInformation($"Received message:From: {message.From}, To={string.Join(", ", message.To)}, Subject={message.Subject}");
+
+        var mailMessage = new Message(message.To, message.From, message.Subject, message.Body);
         var isSending = await _mailProcessor.ProcessEndSendMail(mailMessage);
 
         if (isSending)

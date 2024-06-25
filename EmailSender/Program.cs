@@ -1,15 +1,17 @@
+using System.Text.Json;
 using EmailSender;
 using EmailSender.Business.MailConfiguration;
 using EmailSender.Business.MailProcessor;
 using EmailSender.Business.MailSender;
 using EmailSender.Business.Rabbit;
+using EmailSender.Configuration;
 using MailKit.Net.Smtp;
 using MassTransit;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker>();
 
-builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration")); 
+builder.Services.GetConfigurationFromEnvironment();
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<MailRequestConsumer>();
@@ -17,10 +19,7 @@ builder.Services.AddMassTransit(x =>
     {
         cfg.Host("rabbitmq://localhost");
 
-        cfg.ReceiveEndpoint("mail_shared", e =>
-        {
-            e.ConfigureConsumer<MailRequestConsumer>(context);
-        });
+        cfg.ReceiveEndpoint("mail_shared", e => { e.ConfigureConsumer<MailRequestConsumer>(context); });
     });
 });
 
