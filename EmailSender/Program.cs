@@ -1,6 +1,4 @@
-using System.Text.Json;
 using EmailSender;
-using EmailSender.Business.MailConfiguration;
 using EmailSender.Business.MailProcessor;
 using EmailSender.Business.MailSender;
 using EmailSender.Business.Rabbit;

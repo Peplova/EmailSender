@@ -1,6 +1,5 @@
 using System.Text.Json;
 using EmailSender.Business.MailConfiguration;
-using Org.BouncyCastle.Crypto.Tls;
 
 namespace EmailSender.Configuration;
 
