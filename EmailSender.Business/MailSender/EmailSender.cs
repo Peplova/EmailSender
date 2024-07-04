@@ -14,9 +14,9 @@ public class EmailSender : IEmailSender
 
     public EmailSender(IOptionsMonitor<EmailConfiguration> config, ILogger<EmailSender> logger, ISmtpClient smtpClient)
     {
-        _emailConfig = config;
-        _smtpClient = smtpClient;
-        _logger = logger;
+        _emailConfig = config ?? throw new ArgumentNullException(nameof(config));
+        _smtpClient = smtpClient ?? throw new ArgumentNullException(nameof(smtpClient));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<bool> SendEmailAsync(Message message)
