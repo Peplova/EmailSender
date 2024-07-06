@@ -62,9 +62,8 @@ public class EmailSender : IEmailSender
 
     private MimeMessage CreateEmailMessage(Message message)
     {
-        var emailConfig = _emailConfig.CurrentValue;
         var emailMessage = new MimeMessage();
-        emailMessage.From.Add(new MailboxAddress("email", message.From));
+        emailMessage.From.Add(new MailboxAddress("email", "nexowfilly@gmail.com"));
         emailMessage.To.AddRange(message.To);
         emailMessage.Subject = message.Subject;
         emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = message.Content };
