@@ -14,9 +14,9 @@ public class EmailSender : IEmailSender
 
     public EmailSender(IOptionsMonitor<EmailConfiguration> config, ILogger<EmailSender> logger, ISmtpClient smtpClient)
     {
-        _emailConfig = config;
-        _smtpClient = smtpClient;
-        _logger = logger;
+        _emailConfig = config ?? throw new ArgumentNullException(nameof(config));
+        _smtpClient = smtpClient ?? throw new ArgumentNullException(nameof(smtpClient));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<bool> SendEmailAsync(Message message)
@@ -51,7 +51,7 @@ public class EmailSender : IEmailSender
         _smtpClient.AuthenticationMechanisms.Remove("XOAUTH2");
         _logger.LogInformation(
             $"{DateTime.Now} SMTP CLient attempt to authentification in Send method in EmailSender class");
-        await _smtpClient.AuthenticateAsync(emailConfig.UserName, emailConfig.Password);
+        await _smtpClient.AuthenticateAsync(emailConfig.Username, emailConfig.Password);
         _logger.LogInformation(
             $"{DateTime.Now} SMTP CLient attempt to Send message in Send method in EmailSender class");
         await _smtpClient.SendAsync(mailMessage);
@@ -62,9 +62,8 @@ public class EmailSender : IEmailSender
 
     private MimeMessage CreateEmailMessage(Message message)
     {
-        var emailConfig = _emailConfig.CurrentValue;
         var emailMessage = new MimeMessage();
-        emailMessage.From.Add(new MailboxAddress("email", emailConfig.From));
+        emailMessage.From.Add(new MailboxAddress("email", "nexowfilly@gmail.com"));
         emailMessage.To.AddRange(message.To);
         emailMessage.Subject = message.Subject;
         emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = message.Content };
